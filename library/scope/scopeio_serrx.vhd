@@ -21,34 +21,59 @@
 -- more details at http://www.gnu.org/licenses/.                              --
 --                                                                            --
 
+use std.textio.all;
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_textio.all;
 
-entity dpram is
+library hdl4fpga;
+use hdl4fpga.std.all;
+
+entity scopeio_serrx is
 	port (
-		rd_addr : in std_logic_vector;
-		rd_data : out std_logic_vector;
-
-		wr_clk  : in std_logic := '-';
-		wr_ena  : in std_logic := '1';
-		wr_addr : in std_logic_vector;
-		wr_data : in std_logic_vector);
+		ser_clk	 	: in  std_logic;	
+		ser_rx		: in std_logic;
+		
+		pll_rdy  : out std_logic;
+		pll_data : out std_logic_vector);
 end;
 
-architecture def of dpram is
-	type word_vector is array (natural range <>) of std_logic_vector(wr_data'range);
+architecture mix of scopeio_serrx is
 
-	signal RAM : word_vector(0 to 2**rd_addr'length-1);
+	signal ser_rxdv 	: std_logic;
+	signal ser_rxd  : std_logic_vector(0 to 7);
 begin
-	rd_data <= ram(to_integer(unsigned(rd_addr)));
-		
-	process (wr_clk)
+
+	UART_RX_e : entity hdl4fpga.UART_RX
+	  generic map(
+		g_CLKS_PER_BIT => 434     -- Needs to be set correctly (@ 50Mhz/434 = 115200)
+		)
+	  port map(
+		i_Clk			=> ser_clk,
+		i_RX_Serial		=> ser_rx,
+		o_RX_DV			=> ser_rxdv,
+		o_RX_Byte		=> ser_rxd
+		);
+	
+	pll_p : process(ser_clk)
+		variable data : unsigned(0 to pll_data'length-1);
 	begin
-		if rising_edge(wr_clk) then
-			if wr_ena='1' then
-				ram(to_integer(unsigned(wr_addr))) <= wr_data;
+		if rising_edge(ser_clk) then
+		
+			if ser_rxdv = '1' then 
+				if ser_rxd = X"FF" then
+					pll_rdy <= '1';
+				else 
+					data := data srl ser_rxd'length;
+					data(ser_rxd'range) := unsigned(ser_rxd);
+					pll_data <= reverse(std_logic_vector(data));
+					pll_rdy <= '0';
+				end if;
+				
 			end if;
 		end if;
 	end process;
+
 end;

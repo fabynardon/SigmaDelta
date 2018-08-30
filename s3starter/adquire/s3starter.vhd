@@ -9,7 +9,7 @@ architecture Behavioral of s3starter is
 
 	component FiltroCIC
 		port (
-			din  : in std_logic_vector(1 downto 0);
+			din  : in std_logic_vector(2 downto 0);
 			clk  : in std_logic;
 			dout : out std_logic_vector(15 downto 0);
 			rdy  : out std_logic;
@@ -40,7 +40,7 @@ architecture Behavioral of s3starter is
 	signal Pulsos_Out : std_logic;
 	signal Diff_Input : std_logic;
 	
-	signal cic_in  : std_logic_vector(1 downto 0);
+	signal cic_in  : std_logic_vector(2 downto 0);
 	signal cic_out : std_logic_vector(15 downto 0);
 	
 	signal wr_ena	:	std_logic;
@@ -56,7 +56,7 @@ begin
 	Inst_MyDFS: MyDFS PORT MAP(
 		CLKIN_IN => xtal,
 		CLKFX_OUT => C0,
-		CLKFX180_OUT => open,
+		CLKFX180_OUT => C1,
 		CLKIN_IBUFG_OUT => open,
 		CLK0_OUT => ser_clk 
 	);
@@ -72,56 +72,55 @@ begin
 --			dfs_clk    => fs_clk,
 --			dfs_clk180 => open);
 
---	IFDDRRSE_inst : IFDDRRSE
---	port map(
---		Q0 => Q0, -- Posedge data output
---		Q1 => Q1, -- Negedge data output
---		C0 => C0, -- 0 degree clock input
---		C1 => C1, -- 180 degree clock input
---		CE => '1', -- Clock enable input
---		D  => data_volt_in, -- Data input (connect directly to top-level port)
---		R  => '0', -- Synchronous reset input
---		S  => '0' -- Synchronous preset input
---	);
-
---	D0 <= not Q1;
---	D1 <= not Q0;
-
---	OFDDRRSE_inst : OFDDRRSE
---	port map(
---		Q  => data_volt_out, -- Data output (connect directly to top-level port)
---		C0 => C0, -- 0 degree clock input
---		C1 => C1, -- 180 degree clock input
---		CE => '1', -- Clock enable input
---		D0 => D0, -- Posedge data input
---		D1 => D1, -- Negedge data input
---		R  => '0', -- Synchronous reset input
---		S  => '0' -- Synchronous preset input
---	);
---
---	cic_in <= 	"010" when Q0='1' and Q1='1' else
---					"001" when Q0='1' and Q1='0' else
---					"001" when Q0='0' and Q1='1' else
---					"000";
-
-	IBUFDS_inst : IBUFDS
+	IFDDRRSE_inst : IFDDRRSE
 	port map(
-		I  => data_volt_in_p,
-		IB => data_volt_in_n,
-		O  => Diff_Input
+		Q0 => Q0, -- Posedge data output
+		Q1 => Q1, -- Negedge data output
+		C0 => C0, -- 0 degree clock input
+		C1 => C1, -- 180 degree clock input
+		CE => '1', -- Clock enable input
+		D  => data_volt_in, -- Data input (connect directly to top-level port)
+		R  => '0', -- Synchronous reset input
+		S  => '0' -- Synchronous preset input
 	);
-	
-	process(C0)
-	begin
-		if rising_edge(C0) then
-			Pulsos_Out <= Diff_Input;
-		end if;
-	end process;
 
-	data_volt_out <= not Pulsos_Out;
+	D0 <= not Q1;
+	D1 <= not Q0;
+
+	OFDDRRSE_inst : OFDDRRSE
+	port map(
+		Q  => data_volt_out, -- Data output (connect directly to top-level port)
+		C0 => C0, -- 0 degree clock input
+		C1 => C1, -- 180 degree clock input
+		CE => '1', -- Clock enable input
+		D0 => D0, -- Posedge data input
+		D1 => D1, -- Negedge data input
+		R  => '0', -- Synchronous reset input
+		S  => '0' -- Synchronous preset input
+	);
+
+	cic_in(0) <= Q0 xor Q1;
+	cic_in(1) <= Q0 and Q1;
+	cic_in(2) <= '0';
 	
-	cic_in(0) <= Pulsos_Out;
-	cic_in(1) <= '0';
+	-- IBUFDS_inst : IBUFDS
+	-- port map(
+		-- I  => data_volt_in_p,
+		-- IB => data_volt_in_n,
+		-- O  => Diff_Input
+	-- );
+	
+	-- process(C0)
+	-- begin
+		-- if rising_edge(C0) then
+			-- Pulsos_Out <= Diff_Input;
+		-- end if;
+	-- end process;
+
+	-- data_volt_out <= not Pulsos_Out;
+	
+	-- cic_in(0) <= Pulsos_Out;
+	-- cic_in(1) <= '0';
 
 	FiltroCIC_inst : FiltroCIC
 	port map(

@@ -39,7 +39,6 @@ package std is
 	subtype byte is std_logic_vector(8-1 downto 0);
 	type byte_vector is array (natural range <>) of byte;
 	subtype ascii is byte;
-	subtype ascii_vector is byte_vector;
 
 	subtype nibble is std_logic_vector(4-1 downto 0);
 	type nibble_vector is array (natural range <>) of nibble;
@@ -61,11 +60,6 @@ package std is
 
 	function reverse (
 		constant arg : std_logic_vector)
-		return std_logic_vector;
-	
-	function reverse (
-		constant arg  : std_logic_vector;
-		constant size : natural)
 		return std_logic_vector;
 	
 	function bin2bcd (
@@ -126,11 +120,6 @@ package std is
 	-- Logic Functions
 	------------------
 
-	function wirebus (
-		constant arg1 : std_logic_vector;
-		constant arg2 : std_logic_vector)
-		return std_logic_vector;
-
 	function setif (
 		arg : boolean)
 		return std_logic;
@@ -139,25 +128,24 @@ package std is
 		arg : boolean)
 		return natural;
 
+	function mux (
+		constant i : std_logic_vector;
+		constant s : std_logic_vector)
+		return std_logic;
+
+	function mux (
+		constant i : std_logic_vector;
+		constant s : std_logic_vector)
+		return std_logic_vector;
+
 	function demux (
 		constant s : std_logic_vector;
 		constant e : std_logic := '1')
 		return std_logic_vector;
 
-	function primux (
-		constant inp : std_logic_vector;
-		constant ena : std_logic_vector;
-		constant def : std_logic_vector := (0 to 0 => '-'))
-		return std_logic_vector;
-
 	function word2byte (
 		constant word : std_logic_vector;
 		constant addr : std_logic_vector)
-		return std_logic_vector;
-
-	function word2byte (
-		constant word : std_logic_vector;
-		constant addr : std_logic)
 		return std_logic_vector;
 
 	function word2byte (
@@ -220,7 +208,7 @@ package std is
 
 	function to_ascii (
 		constant arg : string)
-		return ascii_vector;
+		return byte_vector;
 
 	function to_ascii (
 		constant arg : nibble)
@@ -252,10 +240,6 @@ package std is
 		constant right: integer)
 		return integer;
 
-	procedure swap (
-		variable arg1 : inout std_logic_vector;
-		variable arg2 : inout std_logic_vector);
-
 	function selecton (
 		constant condition : boolean;
 		constant value_if_true  : integer;
@@ -273,20 +257,8 @@ package std is
 		constant size : natural)
 		return std_logic_vector;
 
-	function ipheader_checksummed (
+	function ipheader_checksumed (
 		constant ipheader : std_logic_vector)
-		return std_logic_vector;
-
-	function udp_checksum (
-		constant src : std_logic_vector(0 to 32-1);
-		constant dst : std_logic_vector(0 to 32-1);
-		constant udp : std_logic_vector)
-		return std_logic_vector;
-
-	function udp_checksummed (
-		constant src : std_logic_vector(0 to 32-1);
-		constant dst : std_logic_vector(0 to 32-1);
-		constant udp : std_logic_vector)
 		return std_logic_vector;
 
 	function bcd_add (
@@ -331,18 +303,6 @@ package std is
 
 	function bcd2ascii (
 		constant arg : std_logic_vector)
-		return std_logic_vector;
-
-	function galois_crc (
-		constant m : std_logic_vector;
-		constant r : std_logic_vector;
-		constant g : std_logic_vector)
-		return std_logic_vector;
-	
-	function slice_select (
-		constant slice_data : std_logic_vector;
-		constant slice_map  : natural_vector;
-		constant slice_id   : natural)
 		return std_logic_vector;
 end;
 
@@ -420,15 +380,16 @@ package body std is
 
 	function encoder (
 		constant arg : std_logic_vector)
-		return   std_logic_vector is
+		return         std_logic_vector is
 		variable val : std_logic_vector(0 to unsigned_num_bits(arg'length-1)-1) := (others => '-');
-		variable aux : unsigned(0 to arg'length-1) := (0 => '1', others => '0');
+		variable aux : std_logic_vector(0 to 2**val'length-1) := (others => '0');
 	begin
-		for i in aux'range loop
-			if arg=std_logic_vector(aux) then
+		aux(0 to arg'length-1) := arg;
+		aux := reverse(aux);
+		for i in 0 to aux'length-1 loop
+			if aux=std_logic_vector(to_unsigned(2**i,aux'length)) then
 				val := std_logic_vector(to_unsigned(i, val'length));
 			end if;
-			aux := aux ror 1;
 		end loop;
 		return val;
 	end;
@@ -437,24 +398,23 @@ package body std is
 		constant data : std_logic_vector;
 		constant size : natural)
 		return std_logic_vector is
-		constant n        : natural := (data'length+size-1)/size;
-		variable aux      : unsigned(0 to data'length-1);
+		constant n : natural := (data'length+size-1)/size;
+		variable aux : unsigned(0 to data'length-1);
 		variable checksum : unsigned(0 to size);
 	begin
-		aux      := unsigned(data);
+		aux := unsigned(data);
 		checksum := (others => '0');
 		for i in 0 to n-1 loop
-			checksum := checksum + resize(unsigned(aux(0 to size-1)), checksum'length);
+			checksum := checksum + resize(unsigned(aux(0 to checksum'right-1)), checksum'length);
 			if checksum(0)='1' then
 				checksum := checksum + 1;
 			end if;
-			checksum(0) := '0';
-			aux := aux sll size;
+			aux := aux sll checksum'right;
 		end loop;
 		return std_logic_vector(checksum(1 to size));	
 	end;
 
-	function ipheader_checksummed(
+	function ipheader_checksumed(
 		constant ipheader : std_logic_vector)
 		return std_logic_vector is
 		variable aux : std_logic_vector(0 to ipheader'length-1);
@@ -463,53 +423,6 @@ package body std is
 		aux(80 to 96-1) := (others => '0');
 		aux(80 to 96-1) := not oneschecksum(aux, 16);
 		return aux;
-	end;
-
-	function udp_checksum(
-		constant src : std_logic_vector(0 to 32-1);
-		constant dst : std_logic_vector(0 to 32-1);
-		constant udp : std_logic_vector)
-		return std_logic_vector is
-		variable aux : unsigned(0 to 32+src'length+dst'length+udp'length-1) := (others => '0');
-		variable retval : std_logic_vector(16-1 downto 0);
-	begin
-		aux(src'range) := unsigned(src);
-		aux := aux rol src'length;
-		aux(dst'range) := unsigned(dst);
-		aux := aux rol dst'length;
-		aux(0 to 32-1) := x"0011" & to_unsigned(udp'length/8, 16);
-		aux := aux rol 32;
-
-		aux(0 to udp'length-1) := unsigned(udp);
-		retval := not oneschecksum(std_logic_vector(aux), 16);
-		if retval=(retval'range => '0') then
-			retval := (others => '1');
-		end if;
-		return retval;
-	end;
-
-	function udp_checksummed(
-		constant src  : std_logic_vector(0 to 32-1);
-		constant dst  : std_logic_vector(0 to 32-1);
-		constant udp  : std_logic_vector)
-		return std_logic_vector is
-		variable aux1 : unsigned(0 to udp'length-1) := (others => '0');
-		variable aux  : unsigned(0 to 32+src'length+dst'length+udp'length-1) := (others => '0');
-	begin
-		aux1 := unsigned(udp);
-		aux(src'range) := unsigned(src);
-		aux := aux rol src'length;
-		aux(dst'range) := unsigned(dst);
-		aux := aux rol dst'length;
-		aux(0 to 32-1) := x"0011" & aux1(32 to 32+16-1);
-		aux := aux rol 32;
-
-		aux(0 to udp'length-1) := unsigned(udp);
-		aux(48 to 64-1) := unsigned(not oneschecksum(std_logic_vector(aux), 16));
-		if aux(48 to 64-1)=(1 to 16 => '0') then
-			aux(48 to 64-1) := (others => '1');
-		end if;
-		return std_logic_vector(aux(0 to udp'length-1));
 	end;
 
 	------------------
@@ -527,20 +440,6 @@ package body std is
 		end loop;
 		val := aux;
 		return val;
-	end;
-
-	function reverse (
-		constant arg  : std_logic_vector;
-		constant size : natural)
-		return std_logic_vector is
-		variable aux : std_logic_vector(0 to size*((arg'length+size-1)/size)-1);
-	begin
-		aux := arg;
-		for i in 0 to aux'length/size-1 loop
-			aux(0 to size-1) := reverse(aux(0 to size-1));
-			aux:= std_logic_vector(unsigned(aux) rol size);
-		end loop;
-		return aux;
 	end;
 
 	function bin2bcd(
@@ -689,24 +588,6 @@ package body std is
 	--------------------
 	-- Logical functions
 	--------------------
-
-	function wirebus (
-		constant arg1 : std_logic_vector;
-		constant arg2 : std_logic_vector)
-		return std_logic_vector is
-		variable aux    : unsigned(0 to arg1'length-1) := (others => '0');
-		variable retval : std_logic_vector(0 to (arg1'length+arg2'length-1)/arg2'length-1);
-	begin
-		aux(0 to arg1'length-1) := unsigned(arg1);
-		retval := (others => '0');
-		for i in arg2'range loop
-			if arg2(i)='1' then
-				retval := retval or std_logic_vector(aux(retval'range));
-			end if;
-			aux := aux sll retval'length;
-		end loop;
-		return retval;
-	end;
 
 	function setif (
 		arg : boolean)
@@ -863,6 +744,32 @@ package body std is
 		end if;
 	end procedure;
 
+	function mux (
+		constant i : std_logic_vector;
+		constant s : std_logic_vector)
+		return std_logic is
+	begin
+		return i(to_integer(unsigned(s)));
+	end;
+
+	function mux (
+		constant i : std_logic_vector;
+		constant s : std_logic_vector)
+		return std_logic_vector is
+		variable v : unsigned(i'length/2**s'length downto 0);
+	begin
+		for j in v'range loop
+			if i'left > i'right then
+ 				v := v sll 1;
+				v(v'left) := i(to_integer(unsigned(s))+j);
+			else
+ 				v := v srl 1;
+				v(v'right) := i(to_integer(unsigned(s))+j);
+			end if;
+		end loop;
+		return std_logic_vector(v);
+	end;
+
 	function demux (
 		constant s : std_logic_vector;
 		constant e : std_logic := '1')
@@ -872,24 +779,6 @@ package body std is
 		o := (others => '0');
 		o(to_integer(unsigned(s))) := e;
 		return o;
-	end;
-
-	function primux (
-		constant inp : std_logic_vector;
-		constant ena : std_logic_vector;
-		constant def : std_logic_vector := (0 to 0 => '-'))
-		return std_logic_vector is
-		constant size : natural := (inp'length+ena'length-1)/ena'length;
-		variable aux  : unsigned(0 to size*ena'length-1);
-	begin
-		aux(0 to inp'length-1) := unsigned(inp);
-		for i in ena'range loop
-			if ena(i)='1' then
-				return std_logic_vector(aux(0 to size-1));
-			end if;
-			aux := aux rol size;
-		end loop;
-		return fill(def, size);
 	end;
 
 	function word2byte (
@@ -907,14 +796,6 @@ package body std is
 	end;
 
 	function word2byte (
-		constant word : std_logic_vector;
-		constant addr : std_logic)
-		return std_logic_vector is
-	begin
-		return word2byte(word, (0 to 0 => addr));
-	end;
-
-	function word2byte (
 		constant word  : std_logic_vector;
 		constant addr  : std_logic_vector;
 		constant size  : natural)
@@ -928,11 +809,10 @@ package body std is
 		constant addr  : natural;
 		constant size  : natural)
 		return std_logic_vector is
-		variable aux : unsigned(0 to size*((word'length+size-1)/size)-1);
+		variable aux : std_logic_vector(0 to unsigned_num_bits((word'length+size-1)/size-1)-1);
 	begin
-		aux(0 to word'length-1) := unsigned(word);
-		aux := aux rol ((addr*size) mod word'length);
-		return std_logic_vector(aux(0 to size-1));
+		aux := std_logic_vector(to_unsigned(addr, aux'length));
+		return word2byte(fill(word, size*(2**aux'length)), aux);
 	end;
 
 	function byte2word (
@@ -1032,8 +912,8 @@ package body std is
 
 	function to_ascii(
 		constant arg : string)
-		return ascii_vector is
-		variable retval : ascii_vector(arg'range);
+		return byte_vector is
+		variable retval : byte_vector(arg'range);
 	begin
 		for i in retval'range loop
 			retval(i) := to_stdlogicvector(arg(i));
@@ -1118,17 +998,6 @@ package body std is
 		else
 			return right;
 		end if;
-	end;
-
-	procedure swap (
-		variable arg1 : inout std_logic_vector;
-		variable arg2 : inout std_logic_vector)
-	is
-		variable aux : std_logic_vector(arg1'range);
-	begin
-		aux  := arg1;
-		arg1 := arg2;
-		arg2 := aux;
 	end;
 
 	function selecton (
@@ -1301,43 +1170,6 @@ package body std is
 			aux := aux sll 4;
 		end loop;
 		return std_logic_vector(val);
-	end;
-
-	function galois_crc(
-		constant m : std_logic_vector;
-		constant r : std_logic_vector;
-		constant g : std_logic_vector)
-		return std_logic_vector is
-		variable aux_m : unsigned(0 to m'length-1) := unsigned(m);
-		variable aux_r : unsigned(0 to r'length-1) := unsigned(r);
-	begin
-		for i in aux_m'range loop
-			aux_r := (aux_r sll 1) xor ((aux_r'range => aux_r(0) xor aux_m(0)) and unsigned(g));
-			aux_m := aux_m sll 1;
-		end loop;
-		return std_logic_vector(aux_r);
-	end;
-
-	function slice_select (
-		constant slice_data : std_logic_vector;
-		constant slice_map  : natural_vector;
-		constant slice_id   : natural)
-		return std_logic_vector is
-		variable aux : unsigned(0 to slice_data'length-1);
-	begin
-		aux := unsigned(slice_data);
-		for i in slice_map'range loop
-			if i=slice_id then
-				return std_logic_vector(aux(0 to slice_map(i)-1));
-			end if;
-			aux := aux rol slice_map(i);
-		end loop;
-
-		assert false
-			report "slice_id is not in range"
-			severity FAILURE;
-
-		return (1 to 0 => '-');
 	end;
 
 end;

@@ -3,6 +3,9 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.math_real.all;
 
+library hdl4fpga;
+use hdl4fpga.std.all;
+
 entity adquire is
 	port (
 		i_fs_clk    : in std_logic;
@@ -105,7 +108,7 @@ begin
 		end if;
 	end process;
 
-	Block_Ram : entity work.dpram
+	Block_Ram : entity hdl4fpga.dpram
 		port map(
 			rd_addr => rd_addr,
 			rd_data => rd_data,
@@ -114,7 +117,7 @@ begin
 			wr_addr => out_cont_0,
 			wr_data => i_data);
 
-	Uart_Tx : entity work.uart_tx
+	Uart_Tx : entity hdl4fpga.uart_tx
 		generic map(
 			g_CLKS_PER_BIT => c_CLKS_PER_BIT
 		)
@@ -127,7 +130,7 @@ begin
 			o_tx_done   => tx_done
 		);
 
-	Uart_Rx : entity work.uart_rx
+	Uart_Rx : entity hdl4fpga.uart_rx
 		generic map(
 			g_CLKS_PER_BIT => c_CLKS_PER_BIT
 		)

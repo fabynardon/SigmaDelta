@@ -14,7 +14,10 @@
 library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.all;
- 
+
+library hdl4fpga;
+use hdl4fpga.std.all;
+
 entity UART_RX is
   generic (
     g_CLKS_PER_BIT : integer := 115     -- Needs to be set correctly
