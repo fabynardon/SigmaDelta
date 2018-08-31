@@ -8,13 +8,30 @@ use unisim.vcomponents.all;
 
 library hdl4fpga;
 use hdl4fpga.std.all;
-use hdl4fpga.cgafont.all;
 
 architecture beh of s3starter is
 
 	signal ser_clk    : std_logic;
+	signal sys_clk		: std_logic;
 	signal vga_clk    : std_logic;
-	signal input_clk : std_logic;
+	
+	signal input_clk 	: std_logic;
+	signal input_data : std_logic_vector(31 downto 0);
+	signal input_ena	: std_logic;
+	
+	signal fs_clk      : std_logic;
+	signal fs_clk180   : std_logic;
+
+	signal Q0      : std_logic;
+	signal Q1      : std_logic;
+	signal D0      : std_logic;
+	signal D1      : std_logic;
+
+	signal Pulsos_Out : std_logic;
+	signal Diff_Input : std_logic;
+	
+	signal cic_in  : std_logic_vector(1 downto 0);
+	signal cic_out : std_logic_vector(15 downto 0);
 	
 	constant inputs : natural := 2;
 
@@ -63,26 +80,46 @@ architecture beh of s3starter is
 		(from => 7*5.00001*10.0**(-1), step => -5.00001*10.0**(-1), mult => (100*2**18)/(128*10**4*2**1*5**1), scale => "0010", deca => to_ascii('k')),
                                                                                                               
 		(from => 7*1.00001*10.0**(+0), step => -1.00001*10.0**(+0), mult => (125*2**18)/(128*10**5*2**0*5**0), scale => "0100", deca => to_ascii('k')));
-	
-	COMPONENT MyDFS
-	PORT(
-		CLKIN_IN : IN std_logic;
-		RST_IN : IN std_logic;          
-		CLKFX_OUT : OUT std_logic;
-		CLKIN_IBUFG_OUT : OUT std_logic;
-		CLK0_OUT : OUT std_logic
-		);
-	END COMPONENT;
+		
+	component FiltroCIC
+	port (
+		din: in std_logic_vector(1 downto 0);
+		clk: in std_logic;
+		dout: out std_logic_vector(15 downto 0);
+		rdy: out std_logic;
+		rfd: out std_logic);
+	end component;
 	
 begin
 
-	Inst_MyDFS: MyDFS PORT MAP(
-		CLKIN_IN => xtal,
-		RST_IN => '0',
-		CLKFX_OUT => vga_clk,
-		CLKIN_IBUFG_OUT => open,
-		CLK0_OUT => ser_clk
-	);
+	xtal_bufg_inst : BUFG
+	port map(
+		I => xtal,
+		O => sys_clk);
+		
+	vga_dfs_inst : entity hdl4fpga.dfs
+	generic map(
+		clkin_period	=> 20.000,
+		clkfx_divide	=> 5,
+		clkfx_multiply	=> 4)
+	port map(
+		clkin		=>	sys_clk,
+		rst		=> '0',
+		clkfx		=>	vga_clk,
+		clkfx180 =>	open,
+		clk0		=>	ser_clk);
+	
+	fs_dfs_inst : entity hdl4fpga.dfs
+	generic map(
+		clkin_period	=> 20.000,
+		clkfx_divide	=> 5,
+		clkfx_multiply	=> 4)
+	port map(
+		clkin		=>	sys_clk,
+		rst		=> '0',
+		clkfx		=>	fs_clk,
+		clkfx180 =>	fs_clk180,
+		clk0		=>	open);
 	
 	scopeio_e : entity hdl4fpga.scopeio
 	generic map (
@@ -114,11 +151,41 @@ begin
 	port map (
 		ser_clk 		=> ser_clk,
 		ser_rx 		=> rs232_rxd,
-		input_clk   => input_clk,
-		input_data  => "00000000",
+		input_clk   => fs_clk,
+		input_data  => input_data,
+		input_ena 	=> input_ena,
 		video_clk   => vga_clk,
 		video_rgb   => vga_rgb,
 		video_hsync => vga_hs,
 		video_vsync => vga_vs);
 
+	FiltroCIC_inst : FiltroCIC
+	port map(
+		din  => cic_in,
+		clk  => fs_clk,
+		dout => cic_out,
+		rdy  => input_ena,
+		rfd  => open);
+	
+	IBUFDS_inst : IBUFDS
+	 port map(
+		 I  => data_volt_in_p,
+		 IB => data_volt_in_n,
+		 O  => Diff_Input
+	 );
+	
+	 process(fs_clk)
+	 begin
+		 if rising_edge(fs_clk) then
+			 Pulsos_Out <= Diff_Input;
+		 end if;
+	 end process;
+
+	 data_volt_out <= not Pulsos_Out;
+	
+	 cic_in(0) <= Pulsos_Out;
+	 cic_in(1) <= '0';
+	
+	input_data <= cic_out & x"0000";
+	
 end;
