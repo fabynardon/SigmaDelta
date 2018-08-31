@@ -15,7 +15,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
  
-entity UART_TX is
+entity uart_tx is
   generic (
     g_CLKS_PER_BIT : integer := 115     -- Needs to be set correctly
     );
@@ -27,10 +27,10 @@ entity UART_TX is
     o_TX_Serial : out std_logic;
     o_TX_Done   : out std_logic
     );
-end UART_TX;
+end uart_tx;
  
  
-architecture RTL of UART_TX is
+architecture RTL of uart_tx is
  
   type t_SM_Main is (s_Idle, s_TX_Start_Bit, s_TX_Data_Bits,
                      s_TX_Stop_Bit, s_Cleanup);
@@ -44,7 +44,7 @@ architecture RTL of UART_TX is
 begin
  
    
-  p_UART_TX : process (i_Clk)
+  p_uart_tx : process (i_Clk)
   begin
     if rising_edge(i_Clk) then
          
@@ -128,7 +128,7 @@ begin
  
       end case;
     end if;
-  end process p_UART_TX;
+  end process p_uart_tx;
  
   o_TX_Done <= r_TX_Done;
    

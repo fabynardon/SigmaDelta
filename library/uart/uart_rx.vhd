@@ -18,7 +18,7 @@ use ieee.numeric_std.all;
 library hdl4fpga;
 use hdl4fpga.std.all;
 
-entity UART_RX is
+entity uart_rx is
   generic (
     g_CLKS_PER_BIT : integer := 115     -- Needs to be set correctly
     );
@@ -28,10 +28,10 @@ entity UART_RX is
     o_RX_DV     : out std_logic;
     o_RX_Byte   : out std_logic_vector(7 downto 0)
     );
-end UART_RX;
+end uart_rx;
  
  
-architecture rtl of UART_RX is
+architecture rtl of uart_rx is
  
   type t_SM_Main is (s_Idle, s_RX_Start_Bit, s_RX_Data_Bits,
                      s_RX_Stop_Bit, s_Cleanup);
@@ -60,7 +60,7 @@ begin
    
  
   -- Purpose: Control RX state machine
-  p_UART_RX : process (i_Clk)
+  p_uart_rx : process (i_Clk)
   begin
     if rising_edge(i_Clk) then
          
@@ -137,7 +137,7 @@ begin
  
       end case;
     end if;
-  end process p_UART_RX;
+  end process p_uart_rx;
  
   o_RX_DV   <= r_RX_DV;
   o_RX_Byte <= r_RX_Byte;
