@@ -30,7 +30,7 @@ architecture beh of s3starter is
 	signal Pulsos_Out : std_logic;
 	signal Diff_Input : std_logic;
 	
-	signal cic_in  : std_logic_vector(1 downto 0);
+	signal cic_in  : std_logic_vector(2 downto 0);
 	signal cic_out : std_logic_vector(15 downto 0);
 	
 	constant inputs : natural := 2;
@@ -83,7 +83,7 @@ architecture beh of s3starter is
 		
 	component FiltroCIC
 	port (
-		din: in std_logic_vector(1 downto 0);
+		din: in std_logic_vector(2 downto 0);
 		clk: in std_logic;
 		dout: out std_logic_vector(15 downto 0);
 		rdy: out std_logic;
@@ -158,6 +158,37 @@ begin
 		video_rgb   => vga_rgb,
 		video_hsync => vga_hs,
 		video_vsync => vga_vs);
+		
+	IFDDRRSE_inst : IFDDRRSE
+	port map(
+		Q0 => Q0, -- Posedge data output
+		Q1 => Q1, -- Negedge data output
+		C0 => fs_clk, -- 0 degree clock input
+		C1 => fs_clk180, -- 180 degree clock input
+		CE => '1', -- Clock enable input
+		D  => data_volt_in, -- Data input (connect directly to top-level port)
+		R  => '0', -- Synchronous reset input
+		S  => '0' -- Synchronous preset input
+	);
+
+	D0 <= not Q1;
+	D1 <= not Q0;
+
+	OFDDRRSE_inst : OFDDRRSE
+	port map(
+		Q  => data_volt_out, -- Data output (connect directly to top-level port)
+		C0 => fs_clk, -- 0 degree clock input
+		C1 => fs_clk180, -- 180 degree clock input
+		CE => '1', -- Clock enable input
+		D0 => D0, -- Posedge data input
+		D1 => D1, -- Negedge data input
+		R  => '0', -- Synchronous reset input
+		S  => '0' -- Synchronous preset input
+	);
+
+	cic_in(0) <= Q0 xor Q1;
+	cic_in(1) <= Q0 and Q1;
+	cic_in(2) <= '0';
 
 	FiltroCIC_inst : FiltroCIC
 	port map(
@@ -167,24 +198,24 @@ begin
 		rdy  => input_ena,
 		rfd  => open);
 	
-	IBUFDS_inst : IBUFDS
-	 port map(
-		 I  => data_volt_in_p,
-		 IB => data_volt_in_n,
-		 O  => Diff_Input
-	 );
-	
-	 process(fs_clk)
-	 begin
-		 if rising_edge(fs_clk) then
-			 Pulsos_Out <= Diff_Input;
-		 end if;
-	 end process;
-
-	 data_volt_out <= not Pulsos_Out;
-	
-	 cic_in(0) <= Pulsos_Out;
-	 cic_in(1) <= '0';
+--	IBUFDS_inst : IBUFDS
+--	 port map(
+--		 I  => data_volt_in_p,
+--		 IB => data_volt_in_n,
+--		 O  => Diff_Input
+--	 );
+--	
+--	 process(fs_clk)
+--	 begin
+--		 if rising_edge(fs_clk) then
+--			 Pulsos_Out <= Diff_Input;
+--		 end if;
+--	 end process;
+--
+--	 data_volt_out <= not Pulsos_Out;
+--	
+--	 cic_in(0) <= Pulsos_Out;
+--	 cic_in(1) <= '0';
 	
 	input_data <= cic_out & x"0000";
 	
