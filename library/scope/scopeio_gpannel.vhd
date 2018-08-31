@@ -161,7 +161,6 @@ begin
 
 			value <= word2byte(
 				vt_value    &
-				--std_logic_vector(to_unsigned(16, value'length)) &
 				std_logic_vector(to_unsigned(128, value'length)) &
 				trigger_value,
 				text_row, value'length);
