@@ -1,3 +1,5 @@
 NET "xtal" TNM_NET = xtal;
 TIMESPEC TS_xtal = PERIOD "xtal" 20 ns HIGH 50%;
 NET "xtal" CLOCK_DEDICATED_ROUTE = true;
+
+CONFIG VREF=D5;
