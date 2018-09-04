@@ -106,14 +106,13 @@ begin
 		clkin		=>	sys_clk,
 		rst		=> '0',
 		clkfx		=>	vga_clk,
-		clkfx180 =>	open,
 		clk0		=>	ser_clk);
 	
 	fs_dfs_inst : entity hdl4fpga.dfs
 	generic map(
 		clkin_period	=> 20.000,
 		clkfx_divide	=> 5,
-		clkfx_multiply	=> 4)
+		clkfx_multiply	=> 2)
 	port map(
 		clkin		=>	sys_clk,
 		rst		=> '0',
@@ -142,11 +141,11 @@ begin
 			"V" &
 			"s" &
 			"V")),
-		channels_fg  => b"001" & b"100",	-- un string para cada canal
+		channels_fg  => b"110" & b"011",	-- un string para cada canal
 		channels_bg  => b"000" & b"000",
 		hzaxis_fg    => b"010",
 		hzaxis_bg    => b"000",
-		grid_fg      => b"100",
+		grid_fg      => b"111",
 		grid_bg      => b"000")
 	port map (
 		ser_clk 		=> ser_clk,
@@ -189,7 +188,7 @@ begin
 	cic_in(0) <= Q0 xor Q1;
 	cic_in(1) <= Q0 and Q1;
 	cic_in(2) <= '0';
-
+	
 	FiltroCIC_inst : FiltroCIC
 	port map(
 		din  => cic_in,

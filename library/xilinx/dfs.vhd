@@ -12,21 +12,22 @@ entity dfs is
 		clkfx_multiply	: natural := 10);
 	port (
 		clkin    		: in std_logic;
-		rst      			: in std_logic;
-		clkfx			: out std_logic;
-		clkfx180	: out std_logic;
+		rst      		: in std_logic;
+		clkfx				: out std_logic;
+		clkfx180			: out std_logic;
 		clk0     		: out std_logic);
 end dfs;
 
 architecture dfs_arq of dfs is
 
-	signal clkfb_in     			: std_logic;
-	signal clkfx_buf    		: std_logic;
+	signal clkfb_in     	: std_logic;
+	signal clkfx_buf    	: std_logic;
 	signal clkfx180_buf	: std_logic;
-	signal clk0_buf     		: std_logic;
-	signal gnd_bit      		: std_logic;
+	signal clk0_buf     	: std_logic;
+	signal gnd_bit      	: std_logic;
 	
 begin
+
 	gnd_bit <= '0';
 	clk0    <= clkfb_in;
 
@@ -49,32 +50,32 @@ begin
 	generic map(
 		CLK_FEEDBACK          => "1X",
 		CLKDV_DIVIDE          => 2.0,
-		CLKFX_DIVIDE          => 5,
-		CLKFX_MULTIPLY        => 4,
+		CLKFX_DIVIDE          => clkfx_divide,
+		CLKFX_MULTIPLY        => clkfx_multiply,
 		CLKIN_DIVIDE_BY_2     => FALSE,
-		CLKIN_PERIOD          => 20.000,
+		CLKIN_PERIOD          => clkin_period,
 		CLKOUT_PHASE_SHIFT    => "NONE",
 		DESKEW_ADJUST         => "SYSTEM_SYNCHRONOUS",
-		DFS_FREQUENCY_MODE    => "LOW",
-		DLL_FREQUENCY_MODE    => "LOW",
+		DFS_FREQUENCY_MODE    => "low",
+		DLL_FREQUENCY_MODE    => "low",
 		DUTY_CYCLE_CORRECTION => TRUE,
-		FACTORY_JF            => x"8080",
+		FACTORY_JF            => x"c080",
 		PHASE_SHIFT           => 0,
 		STARTUP_WAIT          => FALSE)
 	port map(
 		CLKFB    	=> clkfb_in,
-		CLKIN    		=> clkin,
+		CLKIN    	=> clkin,
 		DSSEN    	=> gnd_bit,
-		PSCLK    		=> gnd_bit,
-		PSEN     		=> gnd_bit,
-		PSINCDEC => gnd_bit,
-		RST      		=> rst,
+		PSCLK    	=> gnd_bit,
+		PSEN     	=> gnd_bit,
+		PSINCDEC 	=> gnd_bit,
+		RST      	=> rst,
 		CLKDV    	=> open,
-		CLKFX    		=> clkfx_buf,
-		CLKFX180	=> clkfx180_buf,
-		CLK0     		=> clk0_buf,
+		CLKFX    	=> clkfx_buf,
+		CLKFX180		=> clkfx180_buf,
+		CLK0     	=> clk0_buf,
 		CLK2X    	=> open,
-		CLK2X180 => open,
+		CLK2X180 	=> open,
 		CLK90    	=> open,
 		CLK180   	=> open,
 		CLK270   	=> open,

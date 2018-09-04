@@ -1,7 +1,7 @@
 clc, clear all
 
-delete(instrfind({'port'},{'COM6'})); 
-s = serial('COM6');
+delete(instrfind({'port'},{'COM8'})); 
+s = serial('COM8');
 s.BaudRate = 230400;
 s.BytesAvailableFcnCount = 2^14;
 s.BytesAvailableFcnMode = 'byte';

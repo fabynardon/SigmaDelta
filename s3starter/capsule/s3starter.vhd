@@ -43,7 +43,7 @@ entity s3starter is
 		xtal          : in std_logic                     := '1';
 
 		rs232_rxd     : in std_logic                     := '1';
-		--	rs232_txd      : out std_logic                    := '1';
+		--		rs232_txd     : out std_logic                    := '1';
 
 		vga_rgb       : out std_logic_vector(2 downto 0) := (2 downto 0 => '1');
 		vga_hs        : out std_logic                    := '1';
@@ -81,7 +81,8 @@ entity s3starter is
 
 	attribute loc of xtal                 : signal is "T9";
 	attribute loc of rs232_rxd            : signal is "T13";
-	--	attribute loc of rs232_txd             : signal is "R13";
+	-- attribute loc of rs232_txd             : signal is "R13";
+	
 	attribute loc of vga_rgb              : signal is "R12 T12 R11";
 	attribute loc of vga_hs               : signal is "R9";
 	attribute loc of vga_vs               : signal is "T10";
@@ -100,7 +101,7 @@ entity s3starter is
 	-- attribute loc of data_volt_out         : signal is "C7";
 	attribute slew of data_volt_out       : signal is "FAST";
 	attribute drive of data_volt_out      : signal is "8";
-	attribute iostandard of data_volt_out  : signal is "LVCMOS33";
-	-- attribute iostandard of data_volt_out : signal is "SSTL2_I";
+	-- attribute iostandard of data_volt_out  : signal is "LVCMOS33";
+	attribute iostandard of data_volt_out : signal is "SSTL2_I";
 
 end;
