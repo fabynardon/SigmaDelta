@@ -52,8 +52,8 @@ begin
 		clkin		=>	sys_clk,
 		rst		=> '0',
 		clkfx		=>	fs_clk,
-		clkfx180 =>	fs_clk180,
-		clk0		=>	ser_clk);
+		clkfx180 =>	fs_clk180);
+		--clk0		=>	ser_clk);
 	
 --	dfs_inst : entity work.dfs
 --		generic map(
@@ -127,7 +127,7 @@ begin
 	adquire_inst : entity work.adquire
 	port map(
 		i_fs_clk    => fs_clk,
-		i_ser_clk   => ser_clk,
+		i_ser_clk   => sys_clk,
 		i_rst       => '0',
 		i_data      => cic_out,
 		--i_data => std_logic_vector(to_unsigned(15837,16)),

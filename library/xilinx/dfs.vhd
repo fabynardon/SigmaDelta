@@ -14,8 +14,8 @@ entity dfs is
 		clkin    		: in std_logic;
 		rst      		: in std_logic;
 		clkfx				: out std_logic;
-		clkfx180			: out std_logic;
-		clk0     		: out std_logic);
+		clkfx180			: out std_logic);
+		--clk0     		: out std_logic);
 end dfs;
 
 architecture dfs_arq of dfs is
@@ -29,17 +29,17 @@ architecture dfs_arq of dfs is
 begin
 
 	gnd_bit <= '0';
-	clk0    <= clkfb_in;
+	--clk0    <= clkfb_in;
 
-	CLKFX_BUFG_INST : BUFG
-	port map(
-		I => clkfx_buf,
-		O => clkfx);
-
-	CLKFX180_BUFG_INST : BUFG
-	port map(
-		I => clkfx180_buf,
-		O => clkfx180);
+--	CLKFX_BUFG_INST : BUFG
+--	port map(
+--		I => clkfx_buf,
+--		O => clkfx);
+--
+--	CLKFX180_BUFG_INST : BUFG
+--	port map(
+--		I => clkfx180_buf,
+--		O => clkfx180);
 
 	CLK0_BUFG_INST : BUFG
 	port map(
@@ -71,8 +71,10 @@ begin
 		PSINCDEC 	=> gnd_bit,
 		RST      	=> rst,
 		CLKDV    	=> open,
-		CLKFX    	=> clkfx_buf,
-		CLKFX180		=> clkfx180_buf,
+		--CLKFX    	=> clkfx_buf,
+		CLKFX			=> clkfx,
+		--CLKFX180	=> clkfx180_buf,
+		CLKFX180		=> clkfx180,
 		CLK0     	=> clk0_buf,
 		CLK2X    	=> open,
 		CLK2X180 	=> open,

@@ -38,20 +38,20 @@ entity s3starter is
 		--
 		--		switches       : in std_logic_vector(7 downto 0)  := (7 downto 0 => '1');
 		--		buttons        : in std_logic_vector(3 downto 0)  := (3 downto 0 => '1');
-		--		leds           : out std_logic_vector(7 downto 0) := (7 downto 0 => '1');
+		leds           : out std_logic_vector(7 downto 0) := (7 downto 0 => '1');
 
 		xtal          : in std_logic                     := '1';
 
 		rs232_rxd     : in std_logic                     := '1';
-		--		rs232_txd     : out std_logic                    := '1';
+		rs232_txd     : out std_logic                    := '1';
 
 		vga_rgb       : out std_logic_vector(2 downto 0) := (2 downto 0 => '1');
 		vga_hs        : out std_logic                    := '1';
 		vga_vs        : out std_logic                    := '1';
 
 		data_volt_in  : in std_logic;
-		-- data_volt_in_p : in std_logic;
-		-- data_volt_in_n : in std_logic;
+		--data_volt_in_p : in std_logic;
+		--data_volt_in_n : in std_logic;
 		data_volt_out : out std_logic
 	);
 
@@ -77,17 +77,17 @@ entity s3starter is
 	--	attribute loc of switches              : signal is "K13 K14 J13 J14 H13 H14 G12 F12";
 	--	attribute loc of buttons               : signal is "L14 L13 M14 M13";
 
-	--	attribute loc of leds                  : signal is "P11 P12 N12 P13 N14 L12 P14 K12";
+	attribute loc of leds                  : signal is "P11 P12 N12 P13 N14 L12 P14 K12";
 
 	attribute loc of xtal                 : signal is "T9";
 	attribute loc of rs232_rxd            : signal is "T13";
-	-- attribute loc of rs232_txd             : signal is "R13";
+	attribute loc of rs232_txd             : signal is "R13";
 	
 	attribute loc of vga_rgb              : signal is "R12 T12 R11";
 	attribute loc of vga_hs               : signal is "R9";
 	attribute loc of vga_vs               : signal is "T10";
 	
-	attribute iostandard of data_volt_in  : signal is "SSTL2_I";
+	attribute iostandard of data_volt_in  : signal is "HSTL_III_18";
 	attribute loc of data_volt_in         : signal is "E6";
 	
 	-- Entradas diferenciales
@@ -98,10 +98,10 @@ entity s3starter is
 
 	-- Salida realimentada
 	attribute loc of data_volt_out        : signal is "C5";
-	-- attribute loc of data_volt_out         : signal is "C7";
+	--attribute loc of data_volt_out         : signal is "C7";
 	attribute slew of data_volt_out       : signal is "FAST";
 	attribute drive of data_volt_out      : signal is "8";
-	-- attribute iostandard of data_volt_out  : signal is "LVCMOS33";
-	attribute iostandard of data_volt_out : signal is "SSTL2_I";
+	--attribute iostandard of data_volt_out  : signal is "LVCMOS33";
+	attribute iostandard of data_volt_out : signal is "HSTL_III_18";
 
 end;
