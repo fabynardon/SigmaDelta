@@ -117,7 +117,6 @@ begin
 		rst		=> '0',
 		clkfx		=>	fs_clk,
 		clkfx180 =>	fs_clk180);
-		--clkfx180 => open);
 		
 	scopeio_e : entity hdl4fpga.scopeio
 	generic map (
@@ -184,14 +183,9 @@ begin
 		S  => '0' -- Synchronous preset input
 	);
 
-	process(fs_clk)
-	begin
-		if rising_edge(fs_clk) then
-			cic_in(0) <= Q0 xor Q1;
-			cic_in(1) <= Q0 and Q1;
-			cic_in(2) <= '0';
-		end if;
-	end process;
+	cic_in(0) <= Q0 xor Q1;
+	cic_in(1) <= Q0 and Q1;
+	cic_in(2) <= '0';
 	
 	FiltroCIC_inst : FiltroCIC
 	port map(
@@ -201,30 +195,6 @@ begin
 		rdy  => input_ena,
 		rfd  => open);
 	
-	
---	ibufds0 : IBUFDS
---	port map(
---		I  => data_volt_in_p,
---		IB => data_volt_in_n,
---		O  => Diff_Input
---	);
-	
---	 process(fs_clk)
---	 begin
---		 if rising_edge(fs_clk) then
---			 Pulsos_Out <= data_volt_in;
---			 --Pulsos_Out <= Diff_Input;
---		 end if;
---	 end process;
---
---	 data_volt_out <= not Pulsos_Out;
---	
---	 cic_in(0) <= Pulsos_Out;
---	 cic_in(1) <= '0';
-	
 	input_data <= cic_out & x"0000";
-	
-	leds <= (others => '1');
-	rs232_txd <= '1';
 	
 end;

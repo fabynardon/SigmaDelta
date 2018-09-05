@@ -38,12 +38,12 @@ entity s3starter is
 		--
 		--		switches       : in std_logic_vector(7 downto 0)  := (7 downto 0 => '1');
 		--		buttons        : in std_logic_vector(3 downto 0)  := (3 downto 0 => '1');
-		leds           : out std_logic_vector(7 downto 0) := (7 downto 0 => '1');
+		--		leds           : out std_logic_vector(7 downto 0) := (7 downto 0 => '1');
 
 		xtal          : in std_logic                     := '1';
 
 		rs232_rxd     : in std_logic                     := '1';
-		rs232_txd     : out std_logic                    := '1';
+		--		rs232_txd     : out std_logic                    := '1';
 
 		vga_rgb       : out std_logic_vector(2 downto 0) := (2 downto 0 => '1');
 		vga_hs        : out std_logic                    := '1';
@@ -77,11 +77,11 @@ entity s3starter is
 	--	attribute loc of switches              : signal is "K13 K14 J13 J14 H13 H14 G12 F12";
 	--	attribute loc of buttons               : signal is "L14 L13 M14 M13";
 
-	attribute loc of leds                  : signal is "P11 P12 N12 P13 N14 L12 P14 K12";
+	-- attribute loc of leds                  : signal is "P11 P12 N12 P13 N14 L12 P14 K12";
 
 	attribute loc of xtal                 : signal is "T9";
 	attribute loc of rs232_rxd            : signal is "T13";
-	attribute loc of rs232_txd             : signal is "R13";
+	--	attribute loc of rs232_txd             : signal is "R13";
 	
 	attribute loc of vga_rgb              : signal is "R12 T12 R11";
 	attribute loc of vga_hs               : signal is "R9";
