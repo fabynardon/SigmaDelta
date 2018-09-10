@@ -1,88 +1,86 @@
+--                                                                            --
+-- Author(s):                                                                 --
+--   Miguel Angel Sagreras                                                    --
+--                                                                            --
+-- Copyright (C) 2015                                                         --
+--    Miguel Angel Sagreras                                                   --
+--                                                                            --
+-- This source file may be used and distributed without restriction provided  --
+-- that this copyright statement is not removed from the file and that any    --
+-- derivative work contains  the original copyright notice and the associated --
+-- disclaimer.                                                                --
+--                                                                            --
+-- This source file is free software; you can redistribute it and/or modify   --
+-- it under the terms of the GNU General Public License as published by the   --
+-- Free Software Foundation, either version 3 of the License, or (at your     --
+-- option) any later version.                                                 --
+--                                                                            --
+-- This source is distributed in the hope that it will be useful, but WITHOUT --
+-- ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or      --
+-- FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for   --
+-- more details at http://www.gnu.org/licenses/.                              --
+--                                                                            --
+
 library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+use ieee.std_logic_1164.ALL;
+use ieee.numeric_std.ALL;
 
 library unisim;
-use unisim.vcomponents.all;
+use unisim.vcomponents.ALL;
 
 entity dfs is
-		generic (
-		clkin_period 	: real := 20.0;
-		clkfx_divide 	: natural := 3;
-		clkfx_multiply	: natural := 10);
+	generic (
+		dcm_per : real := 20.0;
+		dfs_div : natural := 3;
+		dfs_mul : natural := 10);
 	port (
-		clkin    		: in std_logic;
-		rst      		: in std_logic;
-		clkfx				: out std_logic;
-		clkfx180			: out std_logic);
-		--clk0     		: out std_logic);
-end dfs;
+      dcm_rst : in  std_logic; 
+		dcm_clk : in  std_logic; 
+		dfs_clk : out std_logic;
+		dfs_clk180 : out std_logic; 
+		dcm_lck : out std_logic);
+end;
 
-architecture dfs_arq of dfs is
+architecture xilinx of dfs is
 
-	signal clkfb_in     	: std_logic;
-	signal clkfx_buf    	: std_logic;
-	signal clkfx180_buf	: std_logic;
-	signal clk0_buf     	: std_logic;
-	signal gnd_bit      	: std_logic;
-	
+   signal dcm_clkfb  : std_logic;
+   signal dcm_clk0   : std_logic;
 begin
 
-	gnd_bit <= '0';
-	--clk0    <= clkfb_in;
 
---	CLKFX_BUFG_INST : BUFG
---	port map(
---		I => clkfx_buf,
---		O => clkfx);
---
---	CLKFX180_BUFG_INST : BUFG
---	port map(
---		I => clkfx180_buf,
---		O => clkfx180);
-
-	CLK0_BUFG_INST : BUFG
-	port map(
-		I => clk0_buf,
-		O => clkfb_in);
-
-	DCM_INST : DCM
+	dcmclk_g : bufg
+	port map (
+		I => dcm_clk0,
+		O => dcm_clkfb);
+   
+	dfs_i : dcm
 	generic map(
-		CLK_FEEDBACK          => "1X",
-		CLKDV_DIVIDE          => 2.0,
-		CLKFX_DIVIDE          => clkfx_divide,
-		CLKFX_MULTIPLY        => clkfx_multiply,
-		CLKIN_DIVIDE_BY_2     => FALSE,
-		CLKIN_PERIOD          => clkin_period,
-		CLKOUT_PHASE_SHIFT    => "NONE",
-		DESKEW_ADJUST         => "SYSTEM_SYNCHRONOUS",
-		DFS_FREQUENCY_MODE    => "low",
-		DLL_FREQUENCY_MODE    => "low",
-		DUTY_CYCLE_CORRECTION => TRUE,
-		FACTORY_JF            => x"c080",
-		PHASE_SHIFT           => 0,
-		STARTUP_WAIT          => FALSE)
-	port map(
-		CLKFB    	=> clkfb_in,
-		CLKIN    	=> clkin,
-		DSSEN    	=> gnd_bit,
-		PSCLK    	=> gnd_bit,
-		PSEN     	=> gnd_bit,
-		PSINCDEC 	=> gnd_bit,
-		RST      	=> rst,
-		CLKDV    	=> open,
-		--CLKFX    	=> clkfx_buf,
-		CLKFX			=> clkfx,
-		--CLKFX180	=> clkfx180_buf,
-		CLKFX180		=> clkfx180,
-		CLK0     	=> clk0_buf,
-		CLK2X    	=> open,
-		CLK2X180 	=> open,
-		CLK90    	=> open,
-		CLK180   	=> open,
-		CLK270   	=> open,
-		LOCKED   	=> open,
-		PSDONE   	=> open,
-		STATUS   	=> open);
-
-end dfs_arq;
+		clk_feedback => "1x",
+		clkdv_divide => 2.0,
+		clkfx_divide => dfs_div,
+		clkfx_multiply => dfs_mul,
+		clkin_divide_by_2 => false,
+		clkin_period => dcm_per,
+		clkout_phase_shift => "none",
+		deskew_adjust => "system_synchronous",
+		dfs_frequency_mode => "low",
+		dll_frequency_mode => "low",
+		duty_cycle_correction => true,
+		factory_jf   => x"c080",
+		phase_shift  => 0,
+		startup_wait => false)
+	port map (
+		rst   => dcm_rst,
+		dssen => '0',
+		psclk => '0',
+		psen  => '0',
+		psincdec => '0',
+		clkfb => dcm_clkfb,
+		clkin => dcm_clk,
+		clkfx => dfs_clk,
+		clkfx180 => dfs_clk180,
+		clk0  => dcm_clk0,
+		locked => dcm_lck,
+		psdone => open,
+		status => open);
+end;

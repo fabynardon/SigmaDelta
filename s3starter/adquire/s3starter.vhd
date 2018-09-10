@@ -26,9 +26,6 @@ architecture Behavioral of s3starter is
 	
 	signal D0      : std_logic;
 	signal D1      : std_logic;
-
-	signal Pulsos_Out : std_logic;
-	signal Diff_Input : std_logic;
 	
 	signal cic_in  : std_logic_vector(2 downto 0);
 	signal cic_out : std_logic_vector(15 downto 0);
@@ -43,28 +40,19 @@ begin
 		I => xtal -- Clock buffer input
 	);
 
+	ser_clk <= sys_clk;
+	
 	fs_dfs_inst : entity hdl4fpga.dfs
 	generic map(
-		clkin_period	=> 20.000,
-		clkfx_divide	=> 5,
-		clkfx_multiply	=> 4)
+		dcm_per	=> 20.0,
+		dfs_div	=> 5,
+		dfs_mul	=> 4)
 	port map(
-		clkin		=>	sys_clk,
-		rst		=> '0',
-		clkfx		=>	fs_clk,
-		clkfx180 =>	fs_clk180);
-		--clk0		=>	ser_clk);
-	
---	dfs_inst : entity work.dfs
---		generic map(
---			dcm_per => 20.0, --Periodo
---			dfs_mul => 4,
---			dfs_div => 5)
---		port map(
---			dcm_rst    => '0',
---			dcm_clk    => sys_clk,
---			dfs_clk    => fs_clk,
---			dfs_clk180 => open);
+		dcm_clk		=>	sys_clk,
+		dcm_rst		=> '0',
+		dfs_clk		=>	fs_clk,
+		dfs_clk180 	=>	fs_clk180,
+		dcm_lck		=> leds(7));
 
 	IFDDRRSE_inst : IFDDRRSE
 	port map(
@@ -96,25 +84,6 @@ begin
 	cic_in(0) <= Q0 xor Q1;
 	cic_in(1) <= Q0 and Q1;
 	cic_in(2) <= '0';
-	
-	-- IBUFDS_inst : IBUFDS
-	-- port map(
-		-- I  => data_volt_in_p,
-		-- IB => data_volt_in_n,
-		-- O  => Diff_Input
-	-- );
-	
-	-- process(C0)
-	-- begin
-		-- if rising_edge(C0) then
-			-- Pulsos_Out <= Diff_Input;
-		-- end if;
-	-- end process;
-
-	-- data_volt_out <= not Pulsos_Out;
-	
-	-- cic_in(0) <= Pulsos_Out;
-	-- cic_in(1) <= '0';
 
 	FiltroCIC_inst : FiltroCIC
 	port map(
@@ -127,20 +96,16 @@ begin
 	adquire_inst : entity work.adquire
 	port map(
 		i_fs_clk    => fs_clk,
-		i_ser_clk   => sys_clk,
+		i_ser_clk   => ser_clk,
 		i_rst       => '0',
 		i_data      => cic_out,
-		--i_data => std_logic_vector(to_unsigned(15837,16)),
+		-- i_data		=> std_logic_vector(to_unsigned(14876,16)),
 		i_data_ena  => wr_ena,
-		--i_data_ena => '1',
+		-- i_data_ena  => '1',
 		i_rx_serial => rs232_rxd,
 		o_tx_active => leds(0),
 		o_tx_serial => rs232_txd);
 		
-	leds(7 downto 1) <= (others => '0');
-
-	vga_rgb          <= (others    => '0');
-	vga_hs           <= '0';
-	vga_vs           <= '0';
+	leds(6 downto 1) <= (others => '0');
 
 end Behavioral;
