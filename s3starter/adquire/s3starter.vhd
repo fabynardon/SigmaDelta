@@ -39,8 +39,6 @@ begin
 		O => sys_clk, -- Clock buffer output
 		I => xtal -- Clock buffer input
 	);
-
-	ser_clk <= sys_clk;
 	
 	fs_dfs_inst : entity hdl4fpga.dfs
 	generic map(
@@ -96,7 +94,7 @@ begin
 	adquire_inst : entity work.adquire
 	port map(
 		i_fs_clk    => fs_clk,
-		i_ser_clk   => ser_clk,
+		i_ser_clk   => sys_clk,
 		i_rst       => '0',
 		i_data      => cic_out,
 		-- i_data		=> std_logic_vector(to_unsigned(14876,16)),

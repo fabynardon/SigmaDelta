@@ -56,7 +56,7 @@ entity s3starter is
 	);
 
 	attribute loc                         : string;
-	attribute iostandard                  : string;
+	attribute iostandard            : string;
 	attribute slew                        : string;
 	attribute drive                       : string;
 
@@ -87,7 +87,7 @@ entity s3starter is
 	-- attribute loc of vga_hs               : signal is "R9";
 	-- attribute loc of vga_vs               : signal is "T10";
 	
-	attribute iostandard of data_volt_in  : signal is "SSTL2_I";
+	attribute iostandard of data_volt_in  : signal is "HSTL_III_18";
 	attribute loc of data_volt_in         : signal is "E6";
 	
 	-- Entradas diferenciales
