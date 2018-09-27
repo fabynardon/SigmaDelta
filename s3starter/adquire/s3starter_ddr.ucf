@@ -24,5 +24,5 @@ NET "leds(7)"		LOC=K12;
 NET "rs232_rxd"	LOC=T13;
 NET "rs232_txd"	LOC=R13;
 
-NET "data_volt_in"	LOC=E6 | IOSTANDARD=HSTL_III_18;
-NET "data_volt_out"	LOC=C5 | IOSTANDARD=HSTL_III_18 | SLEW="FAST" | DRIVE=8;
+NET "data_volt_in"	LOC=E6 | IOSTANDARD=HSTL_II_18;
+NET "data_volt_out"	LOC=C5 | IOSTANDARD=HSTL_II_18 | SLEW="FAST" | DRIVE=8;
