@@ -50,8 +50,8 @@ entity s3starter is
 		-- vga_vs        : out std_logic                    := '1';
 
 		data_volt_in  : in std_logic;
-		--data_volt_in_p : in std_logic;
-		--data_volt_in_n : in std_logic;
+--		data_volt_in_p : in std_logic;
+--		data_volt_in_n : in std_logic;
 		data_volt_out : out std_logic
 	);
 
@@ -91,17 +91,17 @@ entity s3starter is
 	attribute loc of data_volt_in         : signal is "E6";
 	
 	-- Entradas diferenciales
---	attribute iostandard of data_volt_in_p : signal is "LVDS_25";
---	attribute loc of data_volt_in_p        : signal is "A4";
---	attribute iostandard of data_volt_in_n : signal is "LVDS_25";
---	attribute loc of data_volt_in_n        : signal is "B4";
+	-- attribute iostandard of data_volt_in_p : signal is "LVDS_25";
+	-- attribute loc of data_volt_in_p        : signal is "A4";
+	-- attribute iostandard of data_volt_in_n : signal is "LVDS_25";
+	-- attribute loc of data_volt_in_n        : signal is "B4";
 
 	-- Salida realimentada
 	attribute loc of data_volt_out        : signal is "C5";
-	--attribute loc of data_volt_out         : signal is "C7";
+	-- attribute loc of data_volt_out         : signal is "C7";
 	attribute slew of data_volt_out       : signal is "FAST";
 	attribute drive of data_volt_out      : signal is "8";
 	attribute iostandard of data_volt_out  : signal is "LVCMOS33";
-	-- attribute iostandard of data_volt_out : signal is "SSTL2_I";
+	--attribute iostandard of data_volt_out : signal is "SSTL2_I";
 
 end;

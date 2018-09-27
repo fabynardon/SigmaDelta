@@ -9,7 +9,7 @@ architecture Behavioral of s3starter is
 
 	component FiltroCIC
 		port (
-			din  : in std_logic_vector(2 downto 0);
+			din  : in std_logic_vector(1 downto 0);
 			clk  : in std_logic;
 			dout : out std_logic_vector(15 downto 0);
 			rdy  : out std_logic;
@@ -27,11 +27,15 @@ architecture Behavioral of s3starter is
 	signal D0      : std_logic;
 	signal D1      : std_logic;
 	
-	signal cic_in  : std_logic_vector(2 downto 0);
+	-- signal cic_in  : std_logic_vector(2 downto 0);
+	signal cic_in  : std_logic_vector(1 downto 0);
 	signal cic_out : std_logic_vector(15 downto 0);
 	
 	signal wr_ena	:	std_logic;
-
+	
+	signal Diff_Output : std_logic;
+	signal Pulsos_Out	:	std_logic;
+	
 begin
 
 	IBUFG_inst : IBUFG
@@ -43,46 +47,44 @@ begin
 	fs_dfs_inst : entity hdl4fpga.dfs
 	generic map(
 		dcm_per	=> 20.0,
-		dfs_div	=> 5,
-		dfs_mul	=> 4)
+		dfs_div	=> 10,
+		dfs_mul	=> 9)
 	port map(
 		dcm_clk		=>	sys_clk,
 		dcm_rst		=> '0',
 		dfs_clk		=>	fs_clk,
-		dfs_clk180 	=>	fs_clk180,
+		dfs_clk180 	=>	open,
 		dcm_lck		=> leds(7));
 
-	IFDDRRSE_inst : IFDDRRSE
-	port map(
-		Q0 => Q0, -- Posedge data output
-		Q1 => Q1, -- Negedge data output
-		C0 => fs_clk, -- 0 degree clock input
-		C1 => fs_clk180, -- 180 degree clock input
-		CE => '1', -- Clock enable input
-		D  => data_volt_in, -- Data input (connect directly to top-level port)
-		R  => '0', -- Synchronous reset input
-		S  => '0' -- Synchronous preset input
-	);
+	IBUFDS_inst : IBUFDS
+	generic map (
+		CAPACITANCE => "DONT_CARE",
+		DIFF_TERM => FALSE,
+		IBUF_DELAY_VALUE => "0",
+		IFD_DELAY_VALUE => "AUTO",
+		IOSTANDARD => "DEFAULT")
+	port map (
+		O => Diff_Output,
+		I => data_volt_in_p,
+		IB => data_volt_in_n);
 
-	D0 <= not Q1;
-	D1 <= not Q0;
-
-	OFDDRRSE_inst : OFDDRRSE
-	port map(
-		Q  => data_volt_out, -- Data output (connect directly to top-level port)
-		C0 => fs_clk, -- 0 degree clock input
-		C1 => fs_clk180, -- 180 degree clock input
-		CE => '1', -- Clock enable input
-		D0 => D0, -- Posedge data input
-		D1 => D1, -- Negedge data input
-		R  => '0', -- Synchronous reset input
-		S  => '0' -- Synchronous preset input
-	);
-
-	cic_in(0) <= Q0 xor Q1;
-	cic_in(1) <= Q0 and Q1;
-	cic_in(2) <= '0';
-
+	FDCE_inst : FDCE
+	generic map (
+		INIT => '0') -- Initial value of register ('0' or '1')
+	port map (
+		Q => Pulsos_Out,
+		C => fs_clk,
+		CE => '1',
+		CLR => '0',
+		D => Diff_Output);
+	
+	
+	cic_in(0) <= Pulsos_Out;
+	cic_in(1) <= '0';
+	--cic_in(2) <= '0';
+	
+	data_volt_out <= not Pulsos_Out;
+	
 	FiltroCIC_inst : FiltroCIC
 	port map(
 		din  => cic_in,
