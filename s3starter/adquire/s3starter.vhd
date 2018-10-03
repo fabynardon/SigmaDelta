@@ -5,6 +5,20 @@ use IEEE.STD_LOGIC_1164.all;
 library UNISIM;
 use UNISIM.VComponents.all;
 
+entity s3starter is
+	port(
+		leds				: out std_logic_vector(7 downto 0) := (7 downto 0 => '1');
+		xtal				: in std_logic                     := '1';
+
+		rs232_rxd		: in std_logic                     := '1';
+		rs232_txd		: out std_logic                    := '1';
+
+		data_volt_in_p	: in std_logic;
+		data_volt_in_n	: in std_logic;
+		
+		data_volt_out	: out std_logic);
+end;
+
 architecture Behavioral of s3starter is
 
 	component FiltroCIC
@@ -47,8 +61,8 @@ begin
 	fs_dfs_inst : entity hdl4fpga.dfs
 	generic map(
 		dcm_per	=> 20.0,
-		dfs_div	=> 10,
-		dfs_mul	=> 9)
+		dfs_div	=> 5,
+		dfs_mul	=> 4)
 	port map(
 		dcm_clk		=>	sys_clk,
 		dcm_rst		=> '0',
@@ -81,7 +95,6 @@ begin
 	
 	cic_in(0) <= Pulsos_Out;
 	cic_in(1) <= '0';
-	--cic_in(2) <= '0';
 	
 	data_volt_out <= not Pulsos_Out;
 	

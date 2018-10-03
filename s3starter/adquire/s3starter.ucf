@@ -1,0 +1,27 @@
+NET "xtal" TNM_NET = xtal;
+TIMESPEC TS_xtal = PERIOD "xtal" 20 ns HIGH 50%;
+NET "xtal" CLOCK_DEDICATED_ROUTE = true;
+
+NET "adquire_inst/i_ser_clk"  TNM_NET = FFS  FFS_i_ser_clk;
+NET "adquire_inst/i_fs_clk"  TNM_NET = FFS  FFS_i_fs_clk;
+
+TIMESPEC TS_ser2fs    = FROM FFS_i_ser_clk TO FFS_i_fs_clk  TIG;
+TIMESPEC TS_fs2ser    = FROM FFS_i_fs_clk TO FFS_i_ser_clk  TIG;
+
+NET "xtal"	LOC=T9;
+
+NET "leds(0)"		LOC=P11;
+NET "leds(1)"		LOC=P12;
+NET "leds(2)"		LOC=N12;
+NET "leds(3)"		LOC=P13;
+NET "leds(4)"		LOC=N14;
+NET "leds(5)"		LOC=L12;
+NET "leds(6)"		LOC=P14;
+NET "leds(7)"		LOC=K12;
+
+NET "rs232_rxd"	LOC=T13;
+NET "rs232_txd"	LOC=R13;
+
+NET "data_volt_in_p"	LOC=A4 | IOSTANDARD=LVDS_25;
+NET "data_volt_in_n"	LOC=B4 | IOSTANDARD=LVDS_25;
+NET "data_volt_out"	LOC=C7 | IOSTANDARD=LVCMOS33 | SLEW="FAST" | DRIVE=8;

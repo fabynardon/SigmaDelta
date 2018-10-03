@@ -59,7 +59,7 @@ begin
 	generic map(
 		dcm_per	=> 20.0,
 		dfs_div	=> 5,
-		dfs_mul	=> 8)
+		dfs_mul	=> 2)
 	port map(
 		dcm_clk		=>	sys_clk,
 		dcm_rst		=> '0',
@@ -90,8 +90,8 @@ begin
 		C0 => fs_clk, -- 0 degree clock input
 		C1 => fs_clk180, -- 180 degree clock input
 		CE => '1', -- Clock enable input
-		D0 => D0, -- Posedge data input
-		D1 => D1, -- Negedge data input
+		D0 => '1', -- Posedge data input
+		D1 => '0', -- Negedge data input
 		R  => '0', -- Synchronous reset input
 		S  => '0' -- Synchronous preset input
 	);
