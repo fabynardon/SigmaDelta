@@ -1,0 +1,38 @@
+NET "xtal" TNM_NET = xtal;
+TIMESPEC TS_xtal = PERIOD "xtal" 20 ns HIGH 50%;
+NET "xtal" CLOCK_DEDICATED_ROUTE = true;
+
+#NET "adquire_inst/i_ser_clk"  TNM_NET = FFS  FFS_i_ser_clk;
+#NET "adquire_inst/i_fs_clk"  TNM_NET = FFS  FFS_i_fs_clk;
+#
+#TIMESPEC TS_ser2fs    = FROM FFS_i_ser_clk TO FFS_i_fs_clk  TIG;
+#TIMESPEC TS_fs2ser    = FROM FFS_i_fs_clk TO FFS_i_ser_clk  TIG;
+
+NET "xtal"	LOC=T9;
+
+NET "leds(7)"		LOC=P11;
+NET "leds(6)"		LOC=P12;
+NET "leds(5)"		LOC=N12;
+NET "leds(4)"		LOC=P13;
+NET "leds(3)"		LOC=N14;
+NET "leds(2)"		LOC=L12;
+NET "leds(1)"		LOC=P14;
+NET "leds(0)"		LOC=K12;
+
+#NET "switches(7)"	LOC=K13;
+#NET "switches(6)"	LOC=K14;
+#NET "switches(5)"	LOC=J13;
+#NET "switches(4)"	LOC=J14;
+#NET "switches(3)"	LOC=H13;
+#NET "switches(2)"	LOC=H14;
+#NET "switches(1)"	LOC=G12;
+#NET "switches(0)"	LOC=F12;
+
+NET "rs232_rxd"	LOC=T13;
+NET "rs232_txd"	LOC=R13;
+
+NET "data_volt_in_p"	LOC=A4 | IOSTANDARD=LVDS_25;
+NET "data_volt_in_n"	LOC=B4 | IOSTANDARD=LVDS_25;
+NET "data_volt_out"	LOC=C7 | IOSTANDARD=LVCMOS33 | SLEW="FAST" | DRIVE=12;
+
+NET "test" LOC=B5 | IOSTANDARD=LVCMOS33 | SLEW="FAST" | DRIVE=8;
