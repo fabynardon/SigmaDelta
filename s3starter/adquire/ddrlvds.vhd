@@ -67,7 +67,7 @@ begin
 	fs_dfs_inst : entity hdl4fpga.dfs
 	generic map(
 		dcm_per	=> 20.0,
-		dfs_div	=> 4,
+		dfs_div	=> 2,
 		dfs_mul	=> 2)
 	port map(
 		dcm_clk		=>	sys_clk,
