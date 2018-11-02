@@ -8,7 +8,7 @@ use UNISIM.VComponents.all;
 entity ddrlvds is
 	port(
 		leds				: out std_logic_vector(7 downto 0) := (7 downto 0 => '1');
-		test				: out std_logic 						  := '1';
+--		test				: out std_logic 						  := '1';
 		xtal				: in std_logic                     := '1';
 
 		rs232_rxd		: in std_logic                     := '1';
@@ -67,8 +67,8 @@ begin
 	fs_dfs_inst : entity hdl4fpga.dfs
 	generic map(
 		dcm_per	=> 20.0,
-		dfs_div	=> 2,
-		dfs_mul	=> 2)
+		dfs_div	=> 4,
+		dfs_mul	=> 3)
 	port map(
 		dcm_clk		=>	sys_clk,
 		dcm_rst		=> '0',
@@ -127,11 +127,9 @@ begin
 		i_data_ena  => wr_ena,
 		-- i_data_ena  => '1',
 		i_rx_serial => rs232_rxd,
-		o_tx_active => leds(0),
+		o_tx_active => leds(6),
 		o_tx_serial => rs232_txd);
 		
-	leds(6 downto 1) <= (others => '0');
-	
-	test <= fs_clk;
+	leds(5 downto 0) <= (others => '0');
 	
 end Behavioral;

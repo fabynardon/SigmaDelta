@@ -21,7 +21,10 @@ end entity adquire;
 architecture adquire_arq of adquire is
 
 	constant c_CLKS_PER_BIT : integer := 217;
+	--constant c_CLKS_PER_BIT : integer := 2;
+	
 	constant g_address_bits : positive  := 13;
+	--constant g_address_bits : positive  := 4;
 
 	signal rst              : std_logic := '0';
 	signal write_done       : std_logic;
@@ -109,6 +112,7 @@ begin
 	end process;
 
 	Block_Ram : entity hdl4fpga.dpram
+	--Block_Ram : entity work.dpram
 		port map(
 			rd_addr => rd_addr,
 			rd_data => rd_data,
@@ -118,6 +122,7 @@ begin
 			wr_data => i_data);
 
 	Uart_Tx : entity hdl4fpga.uart_tx
+	--Uart_Tx : entity work.uart_tx
 		generic map(
 			g_CLKS_PER_BIT => c_CLKS_PER_BIT
 		)
@@ -131,6 +136,7 @@ begin
 		);
 
 	Uart_Rx : entity hdl4fpga.uart_rx
+	--Uart_Rx : entity work.uart_rx
 		generic map(
 			g_CLKS_PER_BIT => c_CLKS_PER_BIT
 		)

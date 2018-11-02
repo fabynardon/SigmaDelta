@@ -23,13 +23,13 @@ end;
 
 architecture Behavioral of s3starter is
 
-	component FiltroCIC
+	component CiC
 		port (
-			din  : in std_logic_vector(1 downto 0);
-			clk  : in std_logic;
-			dout : out std_logic_vector(15 downto 0);
-			rdy  : out std_logic;
-			rfd  : out std_logic);
+		din: in std_logic_vector(1 downto 0);
+		clk: in std_logic;
+		dout: out std_logic_vector(15 downto 0);
+		rdy: out std_logic;
+		rfd: out std_logic);
 	end component;
 
 	signal sys_clk : std_logic;
@@ -64,8 +64,8 @@ begin
 	fs_dfs_inst : entity hdl4fpga.dfs
 	generic map(
 		dcm_per	=> 20.0,
-		dfs_div	=> 5,
-		dfs_mul	=> 5)
+		dfs_div	=> 10,
+		dfs_mul	=> 27)
 	port map(
 		dcm_clk		=>	sys_clk,
 		dcm_rst		=> '0',
@@ -73,7 +73,7 @@ begin
 		dfs_clk180 	=>	open,
 		dcm_lck		=> leds(7));
 	
-	test <= '0';
+	test <= rs232_rxd;
 		
 	IBUFDS_inst : IBUFDS
 	port map (
@@ -94,7 +94,7 @@ begin
 	
 	data_volt_out <= not Pulsos_Out;
 	
-	FiltroCIC_inst : FiltroCIC
+	FiltroCIC : CiC
 	port map(
 		din  => cic_in,
 		clk  => fs_clk,
@@ -108,7 +108,7 @@ begin
 		i_ser_clk   => sys_clk,
 		i_rst       => '0',
 		i_data      => cic_out,
-		--i_data		=> std_logic_vector(to_unsigned(14876,16)),
+		--i_data		=> std_logic_vector(to_unsigned(12412,16)),
 		i_data_ena  => wr_ena,
 	   --i_data_ena  => '1',
 		i_rx_serial => rs232_rxd,
