@@ -22,7 +22,7 @@ end;
 
 architecture Behavioral of ddrlvds is
 
-	component FiltroCIC
+	component CiC_DDR
 		port (
 			din  : in std_logic_vector(2 downto 0);
 			clk  : in std_logic;
@@ -67,8 +67,8 @@ begin
 	fs_dfs_inst : entity hdl4fpga.dfs
 	generic map(
 		dcm_per	=> 20.0,
-		dfs_div	=> 4,
-		dfs_mul	=> 3)
+		dfs_div	=> 5,
+		dfs_mul	=> 5)
 	port map(
 		dcm_clk		=>	sys_clk,
 		dcm_rst		=> '0',
@@ -109,7 +109,7 @@ begin
 	cic_in(1) <= Q0 and Q1;
 	cic_in(2) <= '0';
 
-	FiltroCIC_inst : FiltroCIC
+	FiltroCIC_inst : CiC_DDR
 	port map(
 		din  => cic_in,
 		clk  => fs_clk,
