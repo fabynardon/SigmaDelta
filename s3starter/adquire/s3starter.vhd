@@ -8,7 +8,6 @@ use UNISIM.VComponents.all;
 entity s3starter is
 	port(
 		xtal				: in std_logic								:= '1';
-		test				: out std_logic							:= '1';
 		
 		leds				: out std_logic_vector(7 downto 0)	:= (7 downto 0 => '1');
 		
@@ -72,8 +71,6 @@ begin
 		dfs_clk		=>	fs_clk,
 		dfs_clk180 	=>	open,
 		dcm_lck		=> leds(7));
-	
-	test <= rs232_rxd;
 		
 	IBUFDS_inst : IBUFDS
 	port map (
